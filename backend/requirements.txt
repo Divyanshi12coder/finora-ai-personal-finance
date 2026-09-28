@@ -1,11 +1,11 @@
 # --- Web framework ---
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
 python-multipart==0.0.20
 
 # --- Validation / settings ---
-pydantic==2.10.4
-pydantic-settings==2.7.1
+pydantic==2.13.5
+pydantic-settings==2.15.0
 email-validator==2.2.0
 
 # --- Database ---
