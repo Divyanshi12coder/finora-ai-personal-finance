@@ -1,0 +1,72 @@
+name: Bug report
+description: Something in Finora is not working as documented
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do not paste real financial data,
+        access tokens, or the contents of your `.env` into this issue.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click '...'
+        3. See the error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      options:
+        - Frontend (UI)
+        - Backend API
+        - ML / categorisation
+        - OCR / receipts
+        - Forecasting
+        - AI assistant
+        - Docker / setup
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: how-run
+    attributes:
+      label: How are you running Finora?
+      options:
+        - Docker Compose
+        - Local development (PostgreSQL)
+        - Local development (SQLite fallback)
+    validations:
+      required: true
+
+  - type: textarea
+    id: health
+    attributes:
+      label: Output of /api/health
+      description: >
+        Run `curl http://localhost:8000/api/health`. This shows which
+        subsystems are available and rules out a lot of setup issues.
+      render: json
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Backend logs or browser console output. Redact anything sensitive.
+      render: shell

@@ -1,0 +1,41 @@
+# Tooling configuration for the Python side of Finora.
+# The backend package itself is run from `backend/`, not installed.
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".venv", "alembic/versions", "ml/models"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # import sorting
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "C4",   # comprehensions
+    "SIM",  # simplify
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",    # line length is handled by the formatter
+    "B008",    # FastAPI's Depends() in defaults is the documented pattern
+    "RUF001",  # ambiguous unicode: we use the rupee sign and en dashes deliberately
+    "RUF002",
+    "RUF003",
+    "SIM108",  # ternaries are not always clearer than an if/else
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests may shadow fixtures and use assert-heavy style.
+"backend/tests/*" = ["B011", "SIM117"]
+# Model modules re-export names for Alembic's autogenerate.
+"backend/app/models/__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "ml"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false

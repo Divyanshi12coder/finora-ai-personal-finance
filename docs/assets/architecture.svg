@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-label="Finora architecture">
+  <title>Finora architecture</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748B"/>
+    </marker>
+    <style>
+      .box  { fill:#FFFFFF; stroke:#CBD5E1; stroke-width:1.5; rx:10 }
+      .navy { fill:#0B1F3A }
+      .t    { font-family: Inter, 'Segoe UI', system-ui, sans-serif }
+      .h    { font-size:13px; font-weight:700; fill:#0B1F3A }
+      .hw   { font-size:13px; font-weight:700; fill:#FFFFFF }
+      .s    { font-size:10.5px; fill:#64748B }
+      .sw   { font-size:10.5px; fill:#FFFFFF; fill-opacity:.72 }
+      .lbl  { font-size:9.5px; fill:#94A3B8; font-weight:600 }
+      .line { stroke:#64748B; stroke-width:1.4; fill:none; marker-end:url(#arrow) }
+    </style>
+  </defs>
+
+  <rect width="900" height="520" fill="#F4F7FA"/>
+
+  <!-- Frontend -->
+  <rect x="300" y="24" width="300" height="60" rx="10" class="box"/>
+  <text x="450" y="48" class="t h" text-anchor="middle">React + TypeScript frontend</text>
+  <text x="450" y="66" class="t s" text-anchor="middle">Vite · Tailwind · Recharts · Framer Motion</text>
+
+  <path d="M450 84 L450 124" class="line"/>
+  <text x="462" y="108" class="t lbl">REST / JWT</text>
+
+  <!-- API -->
+  <rect x="300" y="124" width="300" height="60" rx="10" fill="#0B1F3A"/>
+  <text x="450" y="148" class="t hw" text-anchor="middle">FastAPI backend</text>
+  <text x="450" y="166" class="t sw" text-anchor="middle">routers → services → repositories</text>
+
+  <!-- Fan out -->
+  <path d="M370 184 L150 232" class="line"/>
+  <path d="M420 184 L330 232" class="line"/>
+  <path d="M480 184 L570 232" class="line"/>
+  <path d="M530 184 L750 232" class="line"/>
+
+  <!-- PostgreSQL -->
+  <rect x="40" y="232" width="220" height="74" rx="10" class="box"/>
+  <text x="150" y="256" class="t h" text-anchor="middle">PostgreSQL</text>
+  <text x="150" y="274" class="t s" text-anchor="middle">13 tables · SQLAlchemy</text>
+  <text x="150" y="290" class="t s" text-anchor="middle">Alembic migrations</text>
+
+  <!-- ML -->
+  <rect x="280" y="232" width="210" height="74" rx="10" class="box"/>
+  <text x="385" y="256" class="t h" text-anchor="middle">ML services</text>
+  <text x="385" y="274" class="t s" text-anchor="middle">TF-IDF + LogReg · Isolation Forest</text>
+  <text x="385" y="290" class="t s" text-anchor="middle">Exponential smoothing</text>
+
+  <!-- OCR -->
+  <rect x="510" y="232" width="180" height="74" rx="10" class="box"/>
+  <text x="600" y="256" class="t h" text-anchor="middle">OCR pipeline</text>
+  <text x="600" y="274" class="t s" text-anchor="middle">OpenCV → Tesseract</text>
+  <text x="600" y="290" class="t s" text-anchor="middle">Receipt field parser</text>
+
+  <!-- Analytics -->
+  <rect x="710" y="232" width="150" height="74" rx="10" class="box"/>
+  <text x="785" y="256" class="t h" text-anchor="middle">Analytics</text>
+  <text x="785" y="274" class="t s" text-anchor="middle">Budgets · health</text>
+  <text x="785" y="290" class="t s" text-anchor="middle">Aggregation</text>
+
+  <!-- Converge into the insight engine -->
+  <path d="M150 306 L380 358" class="line"/>
+  <path d="M385 306 L430 358" class="line"/>
+  <path d="M600 306 L480 358" class="line"/>
+  <path d="M785 306 L530 358" class="line"/>
+
+  <rect x="250" y="358" width="400" height="62" rx="10" fill="#132B4F"/>
+  <text x="450" y="382" class="t hw" text-anchor="middle">Insight engine — deterministic</text>
+  <text x="450" y="400" class="t sw" text-anchor="middle">Computes every figure. Structured, verifiable facts.</text>
+
+  <path d="M450 420 L450 452" class="line"/>
+  <text x="462" y="440" class="t lbl">verified facts only</text>
+
+  <rect x="250" y="452" width="400" height="48" rx="10" fill="#FFFFFF" stroke="#E63946" stroke-width="1.8"/>
+  <text x="450" y="472" class="t h" text-anchor="middle" fill="#E63946">AI explanation layer — optional</text>
+  <text x="450" y="489" class="t s" text-anchor="middle">Phrases the facts. Never calculates. Degrades to templates.</text>
+</svg>

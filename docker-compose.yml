@@ -1,0 +1,85 @@
+# ---------------------------------------------------------------------------
+# Finora — full stack.
+#
+#   cp .env.example .env
+#   docker compose up --build
+#
+#   Frontend  http://localhost:5173
+#   API docs  http://localhost:8000/api/docs
+#
+# The backend image includes Tesseract, so receipt OCR works here even if it is
+# not installed on the host.
+# ---------------------------------------------------------------------------
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: finora-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-finora}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-finora}
+      POSTGRES_DB: ${POSTGRES_DB:-finora}
+      # Deterministic collation so index ordering matches across machines.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Named user and database, so the check fails if either is misconfigured.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-finora} -d ${POSTGRES_DB:-finora}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: finora-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-finora}:${POSTGRES_PASSWORD:-finora}@postgres:5432/${POSTGRES_DB:-finora}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env - generate one with: python -c "import secrets; print(secrets.token_urlsafe(48))"}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # The browser talks to nginx, which proxies /api to this service, so the
+      # frontend origin is what must be allowed.
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      UPLOAD_DIR: /srv/uploads
+      # Optional. Without it the assistant uses the built-in explainer.
+      AI_PROVIDER: ${AI_PROVIDER:-anthropic}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-claude-sonnet-5}
+      # Seed the demo account on first boot; harmless once it exists.
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      # Uploaded receipts survive container rebuilds.
+      - receipt_uploads:/srv/uploads
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        # Relative, so nginx proxies to the backend on the same origin.
+        VITE_API_URL: /api
+    container_name: finora-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+
+volumes:
+  postgres_data:
+    driver: local
+  receipt_uploads:
+    driver: local

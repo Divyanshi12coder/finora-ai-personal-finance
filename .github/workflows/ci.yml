@@ -1,0 +1,204 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Tests run against a real PostgreSQL, not the SQLite fallback, so the
+    # schema and queries are exercised on the supported database.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: finora
+          POSTGRES_PASSWORD: finora
+          POSTGRES_DB: finora_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U finora -d finora_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install OCR and OpenCV system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            tesseract-ocr tesseract-ocr-eng libgl1 libglib2.0-0
+
+      - name: Install Python dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Build the training dataset
+        run: python -m ml.build_dataset
+
+      - name: Train the categorisation model
+        # Required before the tests: several assert on real predictions.
+        run: python -m ml.train --no-cv
+
+      - name: Verify Alembic migrations apply to PostgreSQL
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://finora:finora@localhost:5432/finora_test
+          JWT_SECRET: ci-test-secret-not-used-anywhere-real
+        run: |
+          python -m alembic upgrade head
+          python -m alembic downgrade base
+          python -m alembic upgrade head
+
+      - name: Run backend tests
+        working-directory: backend
+        env:
+          JWT_SECRET: ci-test-secret-not-used-anywhere-real
+          ENVIRONMENT: test
+          LOG_LEVEL: WARNING
+        run: python -m pytest -q
+
+      - name: Verify the demo seed runs end to end
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://finora:finora@localhost:5432/finora_test
+          JWT_SECRET: ci-test-secret-not-used-anywhere-real
+        run: python -m app.seed --reset --months 4
+
+  ml:
+    name: ML pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Verify the seed dataset is reproducible
+        # The committed CSV must match what the generator produces, otherwise
+        # the published metrics do not correspond to the committed data.
+        run: |
+          cp ml/datasets/seed_transactions.csv /tmp/committed.csv
+          python -m ml.build_dataset
+          diff -q /tmp/committed.csv ml/datasets/seed_transactions.csv \
+            || (echo "::error::seed_transactions.csv is out of date; re-run python -m ml.build_dataset" && exit 1)
+
+      - name: Train and report metrics
+        run: python -m ml.train
+
+      - name: Evaluate the persisted model
+        run: python -m ml.evaluate
+
+      - name: Smoke-test inference
+        run: |
+          python -m ml.predict "Swiggy order 450" --json
+          python -m ml.predict "Uber trip to office" --merchant "Uber India" --json
+
+      - name: Upload the trained model and metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: categorizer-model
+          path: |
+            ml/models/categorizer.joblib
+            ml/models/categorizer_metrics.json
+          retention-days: 14
+
+  frontend:
+    name: Frontend build and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Run tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+  docker:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # Only worth the minutes once the code itself is known good.
+    needs: [backend, frontend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: false
+          load: true
+          tags: finora-backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build the frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: false
+          load: true
+          tags: finora-frontend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify OCR is available inside the backend image
+        run: |
+          docker run --rm finora-backend:ci tesseract --version

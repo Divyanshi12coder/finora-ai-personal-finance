@@ -1,0 +1,41 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/backend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "backend"]
+    groups:
+      # Group the scientific stack: these versions move together and a
+      # one-at-a-time bump usually fails to resolve.
+      scientific:
+        patterns: ["numpy", "pandas", "scikit-learn", "scipy", "statsmodels", "joblib"]
+      fastapi:
+        patterns: ["fastapi", "starlette", "uvicorn*", "pydantic*"]
+
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "frontend"]
+    groups:
+      react:
+        patterns: ["react", "react-dom", "@types/react*", "react-router-dom"]
+      tooling:
+        patterns: ["vite", "vitest", "@vitejs/*", "typescript", "eslint*", "@typescript-eslint/*"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    labels: ["dependencies", "ci"]
+
+  - package-ecosystem: docker
+    directory: "/backend"
+    schedule:
+      interval: monthly
+    labels: ["dependencies", "docker"]

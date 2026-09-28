@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens.
+ *
+ * Light mode is white-dominant with navy as the brand and red reserved for
+ * expenses, warnings and emphasis. Dark mode is not an inversion: it uses the
+ * brand navy itself as the surface colour and lifts the red to stay legible
+ * against it.
+ */
+@layer base {
+  :root {
+    /* Surfaces */
+    --canvas: 255 255 255;
+    --surface: 255 255 255;
+    --elevated: 255 255 255;
+    --subtle: 244 247 250;
+    --line: 226 232 240;
+
+    /* Text */
+    --ink: 23 32 51;
+    --muted: 100 116 139;
+    --faint: 148 163 184;
+
+    /* Navy */
+    --navy: 11 31 58;
+    --navy-deep: 19 43 79;
+    --navy-soft: 44 82 130;
+    --navy-tint: 233 238 245;
+    --navy-ink: 255 255 255;
+
+    /* Red accent */
+    --accent: 230 57 70;
+    --accent-strong: 200 42 54;
+    --accent-soft: 255 229 231;
+    --accent-tint: 255 241 242;
+
+    /* Status */
+    --positive: 21 128 61;
+    --positive-soft: 220 252 231;
+    --warning: 180 83 9;
+    --warning-soft: 254 243 199;
+
+    color-scheme: light;
+  }
+
+  .dark {
+    --canvas: 7 20 38;
+    --surface: 11 31 58;
+    --elevated: 19 43 79;
+    --subtle: 14 36 66;
+    --line: 32 58 96;
+
+    --ink: 248 250 252;
+    --muted: 148 163 184;
+    --faint: 100 116 139;
+
+    --navy: 59 105 168;
+    --navy-deep: 19 43 79;
+    --navy-soft: 96 145 209;
+    --navy-tint: 19 43 79;
+    --navy-ink: 255 255 255;
+
+    --accent: 255 77 90;
+    --accent-strong: 255 110 121;
+    --accent-soft: 72 26 33;
+    --accent-tint: 54 22 27;
+
+    --positive: 74 222 128;
+    --positive-soft: 20 60 40;
+    --warning: 251 191 36;
+    --warning-soft: 66 48 12;
+
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Numbers line up in tables and metric cards. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-navy/50 ring-offset-2 ring-offset-canvas rounded-md;
+  }
+
+  ::selection {
+    @apply bg-navy/15;
+  }
+
+  /* Scrollbars, styled to match the surface rather than the OS default. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-[3px] border-solid border-transparent bg-faint/40 bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-faint/70;
+  }
+
+  /* Honour a user's reduced-motion preference everywhere. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-surface shadow-card;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:shadow-card-hover;
+  }
+
+  .skeleton {
+    @apply rounded-md bg-subtle;
+    background-image: linear-gradient(
+      90deg,
+      rgb(var(--subtle)) 0%,
+      rgb(var(--line) / 0.65) 50%,
+      rgb(var(--subtle)) 100%
+    );
+    background-size: 1000px 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Hide the horizontal scrollbar on mobile table wrappers while keeping
+     the element scrollable. */
+  .scroll-x {
+    @apply overflow-x-auto;
+    scrollbar-width: thin;
+  }
+
+  .label {
+    @apply text-2xs font-semibold uppercase tracking-wider text-muted;
+  }
+
+  /* Gradient text used sparingly, on the landing hero only. */
+  .text-gradient {
+    @apply bg-gradient-to-br from-navy via-navy-deep to-accent bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

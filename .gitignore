@@ -1,0 +1,53 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Database ---
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Uploads (user data, never committed) ---
+backend/uploads/
+!backend/uploads/.gitkeep
+
+# --- ML artefacts ---
+# The trained model is a build output: reproduce it with `python -m ml.train`.
+ml/models/*.joblib
+ml/models/*.json
+# User corrections exported from a live database are private data.
+ml/datasets/corrections.csv
+
+# --- Node / frontend ---
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+frontend/coverage/
+
+# --- Editors / OS ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+.ruff_cache/

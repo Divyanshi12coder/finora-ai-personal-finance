@@ -1,0 +1,38 @@
+# --- Web framework ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# --- Validation / settings ---
+pydantic==2.10.4
+pydantic-settings==2.7.1
+email-validator==2.2.0
+
+# --- Database ---
+SQLAlchemy==2.0.36
+alembic==1.14.0
+psycopg[binary]==3.2.3
+
+# --- Auth / security ---
+passlib==1.7.4
+bcrypt==4.2.1
+PyJWT==2.10.1
+
+# --- Data / ML ---
+numpy==2.2.1
+pandas==2.2.3
+scikit-learn==1.7.2
+statsmodels==0.14.4
+joblib==1.4.2
+
+# --- OCR ---
+pytesseract==0.3.13
+Pillow==11.1.0
+opencv-python-headless==4.10.0.84
+
+# --- AI provider client (HTTP only, provider-agnostic) ---
+httpx==0.28.1
+
+# --- Testing ---
+pytest==8.3.4
+pytest-asyncio==0.25.0

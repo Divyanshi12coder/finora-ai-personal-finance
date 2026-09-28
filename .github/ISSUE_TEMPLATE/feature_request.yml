@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an improvement to Finora
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation you are in, not just the feature you want.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have considered
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: >
+            This does not require Finora to give regulated financial, tax
+            or investment advice.
+          required: true
+        - label: >
+            If this involves AI, the numbers would still be computed by the
+            backend rather than by a language model.
+          required: true
