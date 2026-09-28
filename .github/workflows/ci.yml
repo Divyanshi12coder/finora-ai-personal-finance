@@ -125,7 +125,7 @@ jobs:
           python -m ml.predict "Uber trip to office" --merchant "Uber India" --json
 
       - name: Upload the trained model and metrics
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: categorizer-model
           path: |
