@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: finora-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: finora-db
+          property: connectionString
+
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: ENVIRONMENT
+        value: production
+
+      - key: LOG_LEVEL
+        value: INFO
+
+      - key: CORS_ORIGINS
+        value: https://finora-frontend.onrender.com
+
+      - key: UPLOAD_DIR
+        value: /srv/uploads
+
+      - key: AI_PROVIDER
+        value: anthropic
+
+      - key: AI_API_KEY
+        sync: false
+
+      - key: AI_MODEL
+        value: claude-sonnet-5
+
+      - key: SEED_DEMO_DATA
+        value: "true"
+
+  - type: web
+    name: finora-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+
+databases:
+  - name: finora-db
+    plan: free
+    databaseName: finora
+    user: finora
