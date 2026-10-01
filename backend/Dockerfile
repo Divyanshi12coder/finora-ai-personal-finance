@@ -7,7 +7,7 @@
 # receipt OCR works out of the box in Docker even when it is unavailable on the
 # host machine.
 # ---------------------------------------------------------------------------
-FROM python:3.12-slim AS base
+FROM python:3.14-slim AS base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
