@@ -64,7 +64,7 @@ The model is TF-IDF (word 1–2 grams + character 3–5 grams) into multinomial
 Logistic Regression. The character n-grams matter more than you'd expect — real
 bank narrations are full of `SWGGY`, `AMAZONIN` and `STARBUCKSCOFF`.
 
-```console
+```console 
 $ python -m ml.predict "AMAZONIN prime video subscription"
 category   : Entertainment
 confidence : 88.10%
